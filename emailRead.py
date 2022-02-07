@@ -1,13 +1,20 @@
 import imaplib
 import email
 from email.header import decode_header
-import webbrowser
+# import webbrowser
 import os
-import traceback
+import re
+# from tabnanny import check
+# to get image from the web
+import requests
+import shutil # to save it locally
+# import traceback
 
 # account credentials
+passwdFile = open("C:\\Users\\3boody\\Documents\\GitHub\\SmartSchedulingSystem\\passwd.txt", "r")
+
 user = "abinsaid0002@stu.kau.edu.sa"
-passwd = "Ar@667576"
+passwd = passwdFile .read()
 
 # create an IMAP4 class with SSL 
 imap = imaplib.IMAP4_SSL("imap.gmail.com")
@@ -19,17 +26,17 @@ imap.login(user, passwd)
 def clean(text):
     # clean text for creating a folder
     return "".join(c if c.isalnum() else "_" for c in text)
-
+       
 
 #  selects a mailbox
-status, messages = imap.select("INBOX")
+status, messages = imap.select("StudentMailBox")
 # number of top emails to fetch 
-N = 1
+N = 5
 # total number of emails
  
 messages = int(messages[0])
-
-print(messages)
+print('\n')
+print('The number of current mails: ',messages)
 # print(imap.list)
 print('\n')
 
@@ -72,7 +79,10 @@ for i in range(messages, messages-N, -1):
                         print(body)
                     elif "attachment" in content_disposition:
                         # download attachment
-                        filename = part.get_filename()
+                        filename = part.get_payload()
+                        # pic= re.search('^img.jpg$ ', body)
+                              
+                            
                         if filename:
                             folder_name = clean(subject)
                             if not os.path.isdir(folder_name):
@@ -86,6 +96,47 @@ for i in range(messages, messages-N, -1):
                 content_type = msg.get_content_type()
                 # get the email body
                 body = msg.get_payload(decode=True).decode()
+                  # =========================================================================
+
+                 ## Set up the image URL and filename
+                image_url = "http://kau.edu.sa/Images/211/%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%AE%D8%B1%D9%8A%D8%AC/ic3.jpg"
+                picFilename = image_url.split("/")[-1]
+                print('\n')
+                print(image_url)
+                print(picFilename) 
+                print('\n') 
+
+                 # Open the url image, set stream to True, this will return the stream content.
+                req = requests.get(image_url, stream = True)
+
+                 # Check if the image was retrieved successfully
+                if req.status_code == 200:
+                       # Set decode_content value to True, otherwise the downloaded image file's size will be zero.
+                     req.raw.decode_content = True
+    
+                       # Open a local file with wb ( write binary ) permission.
+                     with open(picFilename,'wb') as f:
+                        shutil.copyfileobj(req.raw, f)
+                      
+                    
+                     print('Image sucessfully Downloaded: ',picFilename)
+                     print('\n') 
+                else:
+                     print('Image Couldn\'t be retreived')
+
+            
+                # ================================printing================================
+                print('\n')    
+                print("The payload:")
+                print('\n'*1)
+                print(body)
+                # tempPic = "<img src=http://kau.edu.sa/Images/211/%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%AE%D8%B1%D9%8A%D8%AC/ic3.jpg"
+                # pic= re.findall("\A<img", tempPic)
+                # print(pic)
+                # print('\n')
+                
+                # ========================================================================
+
                 if content_type == "text/plain":
                     # print only text email parts
                     print(body)
@@ -100,10 +151,16 @@ for i in range(messages, messages-N, -1):
                 filepath = os.path.join(folder_name, filename)
                 # write the file
                 open(filepath, "w").write(body)
+
+              
                 # open in the default browser
                 # webbrowser.open(filepath)
-            print("="*100)
-            print('\n')
+            ## Importing Necessary Modules
+
+
+
+    print("="*75)
+    print('\n')
 # close the connection and logout
 imap.close()
 imap.logout()

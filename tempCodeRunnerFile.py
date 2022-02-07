@@ -1,0 +1,1 @@
+ pic= re.search('^src=.jpg$ ', body)
