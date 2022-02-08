@@ -1,13 +1,12 @@
 import imaplib
 import email
 from email.header import decode_header
-# import webbrowser
 import os
 import re
-# from tabnanny import check
 # to get image from the web
 import requests
 import shutil # to save it locally
+import glob
 # import traceback
 
 # account credentials
@@ -31,7 +30,7 @@ def clean(text):
 #  selects a mailbox
 status, messages = imap.select("StudentMailBox")
 # number of top emails to fetch 
-N = 5
+N = 1
 # total number of emails
  
 messages = int(messages[0])
@@ -61,6 +60,8 @@ for i in range(messages, messages-N, -1):
                 From = From.decode(encoding)
             print("Subject:", subject)
             print("From:", From)
+           
+            # print(msg.walk())
 
             # if the email message is multipart(responsible for HTTP request that HTTP clients construct to send files and data over to a HTTP Server.)
             if msg.is_multipart():
@@ -76,12 +77,10 @@ for i in range(messages, messages-N, -1):
                         pass
                     if content_type == "text/plain" and "attachment" not in content_disposition:
                         # print text/plain emails and skip attachments
-                        print(body)
+                         print("null")
                     elif "attachment" in content_disposition:
                         # download attachment
                         filename = part.get_payload()
-                        # pic= re.search('^img.jpg$ ', body)
-                              
                             
                         if filename:
                             folder_name = clean(subject)
@@ -99,13 +98,13 @@ for i in range(messages, messages-N, -1):
                   # =========================================================================
 
                  ## Set up the image URL and filename
-                image_url = "http://kau.edu.sa/Images/211/%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%AE%D8%B1%D9%8A%D8%AC/ic3.jpg"
-                picFilename = image_url.split("/")[-1]
-                print('\n')
-                print(image_url)
-                print(picFilename) 
-                print('\n') 
+               
+                image_url = re.compile('<img src="(.*?)"')
+                image_url = image_url.findall(body)[0]
+                print("The extracted url of the Image: ",image_url)
 
+                picFilename = image_url.split("/")[-1]
+              
                  # Open the url image, set stream to True, this will return the stream content.
                 req = requests.get(image_url, stream = True)
 
@@ -120,16 +119,16 @@ for i in range(messages, messages-N, -1):
                       
                     
                      print('Image sucessfully Downloaded: ',picFilename)
-                     print('\n') 
+                   
                 else:
                      print('Image Couldn\'t be retreived')
 
             
                 # ================================printing================================
-                print('\n')    
-                print("The payload:")
-                print('\n'*1)
-                print(body)
+               
+                # print("The payload:")
+               
+                # print(body)
                 # tempPic = "<img src=http://kau.edu.sa/Images/211/%D8%A8%D8%B7%D8%A7%D9%82%D8%A9%20%D8%AE%D8%B1%D9%8A%D8%AC/ic3.jpg"
                 # pic= re.findall("\A<img", tempPic)
                 # print(pic)
@@ -152,6 +151,20 @@ for i in range(messages, messages-N, -1):
                 # write the file
                 open(filepath, "w").write(body)
 
+                # mov the files to their correct paths
+                src_folder = r"C:\Users\3boody\Documents\GitHub"
+                dst_folder = r"C:\Users\3boody\Documents\GitHub\SmartSchedulingSystem\mailsFolder\\"
+                # Search files with .txt extension in source directory
+                pattern = "\*.jpg"
+                files = glob.glob(src_folder + pattern)
+
+                # move the files with txt extension
+                for file in files:
+                # extract file name form file path
+                 file_name = os.path.basename(file)
+                 shutil.move(file, dst_folder + file_name)
+                 print('Moved:', file)
+
               
                 # open in the default browser
                 # webbrowser.open(filepath)
@@ -159,7 +172,8 @@ for i in range(messages, messages-N, -1):
 
 
 
-    print("="*75)
+    print("="*100)
+    print("="*100)
     print('\n')
 # close the connection and logout
 imap.close()

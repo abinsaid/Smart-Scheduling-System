@@ -3,25 +3,9 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import HomeScreen from './Screens/HomeScreen';
 import listScreens from './Screens/listScreens';
 import ComponentsScreen from './Screens/ComponentsScreen';
-import {CreateStackNavigator,CreateAppContainer} from 'react-navigation/native'
+import CreateStackNavigator from 'react-navigation/native'
 
-export default function App() {
- 
-  const navigator = CreateStackNavigator(
-    {
-    Home: HomeScreen,
-    List: listScreens,
-    Components: ComponentsScreen
-  },
-   
-  {
-   initialRouteName: 'Home',
-   defaultNavigationOptions: {
-     title: 'app' 
-   }
-
-  }
-  )
+export default function App() { 
  
 
   return (

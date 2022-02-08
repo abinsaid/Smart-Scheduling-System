@@ -1,8 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 
 export default ListScreen = () => {
-    return <Text> List screen</Text>
+ const friends = [
+      {name:'attiya'},
+      {name:'Hamza'},
+      {name:'Hassan'},
+      {name:'Abadi'},
+
+
+ ];
+ 
+    // return <FlatList data={friends} re
 }
 
 const styles = StyleSheet.create({});

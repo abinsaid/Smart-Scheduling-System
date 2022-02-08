@@ -3,8 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 
 
 
-
-export default ComponentsContainer = () => {
+export default CreateAppContainer = () => {
     return <Text> List screen</Text>
 }
 
